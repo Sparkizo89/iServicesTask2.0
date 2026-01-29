@@ -9,8 +9,17 @@ import { procedures } from './data/procedures';
 import { contacts } from './data/contacts';
 import { pdfContext } from './data/pdfContext';
 import { Procedure, ProcedureCategory } from './types';
-import { FaMagnifyingGlass, FaAddressBook, FaBookOpen, FaRobot, FaPaperPlane, FaSquare } from 'react-icons/fa6';
+import { FaMagnifyingGlass, FaAddressBook, FaBookOpen, FaRobot, FaPaperPlane, FaSquare, FaFilePdf, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import { GoogleGenAI } from "@google/genai";
+
+// Mapping des pages du PDF (Fichier attendu : /public/guide.pdf)
+const GUIDE_PDF_PAGES: Record<string, number> = {
+    'gestix_price': 6,
+    'repair_template': 12,
+    'stickers': 16,
+    'contacts': 4,
+    'colis': 19
+};
 
 const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<ProcedureCategory>('all');
@@ -72,26 +81,32 @@ const App: React.FC = () => {
     try {
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const systemInstruction = `Tu es un assistant virtuel expert pour les employés d'iServices. 
-        Ta mission est de répondre aux questions en te basant UNIQUEMENT sur le contexte fourni ci-dessous issu du "Guide des Procédures".
+        Ta mission est de répondre aux questions en te basant UNIQUEMENT sur le contexte fourni.
         
+        TOLÉRANCE ORTHOGRAPHIQUE MAXIMALE :
+        L'utilisateur peut faire des fautes d'orthographe, de frappe ou utiliser du langage SMS (ex: "ecran kasser", "stok", "coment fair").
+        Tu dois AUTOMATIQUEMENT corriger l'intention de l'utilisateur sans jamais mentionner ses fautes. Comprends le sens phonétique.
+
         RÈGLES DE FORMATAGE (OBLIGATOIRES) :
-        1. Utilise le format Markdown pour structurer ta réponse.
-        2. Utilise des titres de niveau 3 (###) pour séparer les étapes ou les sections importantes.
-        3. Utilise des listes à puces (-) pour énumérer des actions ou des conditions.
-        4. Mets en GRAS (**) les mots-clés, les numéros de téléphone, les emails et les actions critiques.
-        5. Sois concis et aéré.
+        1. Utilise le format Markdown.
+        2. Titres niveau 3 (###) pour les étapes.
+        3. Listes à puces (-) pour les actions.
+        4. GRAS (**) pour les éléments importants.
         
-        RÈGLES DE CONTENU :
-        1. Si la réponse est dans le contexte, réponds de manière claire, précise et professionnelle.
-        2. Si la réponse ne se trouve PAS dans le contexte, tu dois répondre exactement : "Aucune réponse ne peut être donnée sur la base du guide de procédure actuel."
-        3. N'invente jamais d'information.
-        
+        INTEGRATION PDF :
+        Si ta réponse concerne l'un des sujets précis ci-dessous, tu DOIS ajouter le tag correspondant EXACTEMENT à la fin de ta réponse (sur une ligne séparée) :
+        - Prix manuel sur Gestix / Vente Reconditionné -> [[IMAGE:gestix_price]]
+        - Comment remplir un ticket de réparation -> [[IMAGE:repair_template]]
+        - Utilisation des stickers de garantie -> [[IMAGE:stickers]]
+        - Organigramme ou liste de contacts visuelle -> [[IMAGE:contacts]]
+        - Envoi de colis / Garanties -> [[IMAGE:colis]]
+
         CONTEXTE DU GUIDE :
         ${pdfContext}`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
-            contents: `Question de l'employé : ${guideQuery}`,
+            contents: `Question utilisateur (analyse phonétiquement si nécessaire) : ${guideQuery}`,
             config: {
                 systemInstruction: systemInstruction,
             }
@@ -122,6 +137,46 @@ const App: React.FC = () => {
                 // Animation delay calculation
                 const style = { animationDelay: `${delayCounter * 0.05}s` };
                 delayCounter++;
+
+                // Detection des Tags [[IMAGE:key]] (Transformés en Viewer PDF)
+                if (line.trim().startsWith('[[IMAGE:')) {
+                    const key = line.replace('[[IMAGE:', '').replace(']]', '').trim();
+                    const pageNumber = GUIDE_PDF_PAGES[key];
+                    const pdfUrl = `/guide.pdf#page=${pageNumber}&view=FitH`;
+                    
+                    if (pageNumber) {
+                        return (
+                            <div key={index} className="my-6 rounded-xl overflow-hidden border border-orange-600/30 shadow-[0_0_20px_rgba(234,88,12,0.15)] animate-[slideUp_0.5s_ease-out_forwards] opacity-0 translate-y-4 bg-neutral-900" style={style}>
+                                <div className="bg-orange-600 text-black text-[10px] font-tech font-bold px-3 py-1.5 uppercase tracking-widest flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FaFilePdf /> Guide Officiel - Page {pageNumber}
+                                    </div>
+                                    <a href={`/guide.pdf`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white transition-colors">
+                                        <FaArrowUpRightFromSquare /> Ouvrir
+                                    </a>
+                                </div>
+                                <div className="relative w-full h-[500px] bg-neutral-800">
+                                    <iframe 
+                                        src={pdfUrl} 
+                                        className="w-full h-full"
+                                        title={`Guide Page ${pageNumber}`}
+                                    >
+                                        <div className="flex flex-col items-center justify-center h-full text-neutral-400 p-10 text-center">
+                                            <p className="mb-2">Votre navigateur ne supporte pas l'affichage PDF.</p>
+                                            <a href="/guide.pdf" target="_blank" className="text-orange-500 underline">Télécharger le guide</a>
+                                        </div>
+                                    </iframe>
+                                    {/* Overlay d'instruction si le PDF n'est pas trouvé */}
+                                    <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center text-center p-6 text-neutral-500">
+                                        <p className="font-tech text-xl text-orange-600 mb-2">FICHIER MANQUANT</p>
+                                        <p className="text-xs">Veuillez placer le fichier <strong>guide.pdf</strong> dans le dossier <strong>public/</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
+                    return null;
+                }
 
                 // Headers (###)
                 if (line.startsWith('###')) {
@@ -184,7 +239,7 @@ const App: React.FC = () => {
 
                     <div className="flex gap-4 md:gap-6 items-start text-xs md:text-sm dark:text-neutral-400 text-neutral-600 font-mono dark:bg-black bg-neutral-100 p-4 md:p-6 rounded-2xl border dark:border-[#222] border-neutral-200 transition-colors">
                         <FaRobot className="text-lg md:text-2xl text-orange-600 shrink-0 mt-1" />
-                        <span className="leading-relaxed">Entrez votre demande. Le système analysera le PDF du protocole officiel pour générer une réponse conforme et structurée.</span>
+                        <span className="leading-relaxed">Entrez votre demande. Le système tolère les fautes d'orthographe et analyse le PDF officiel pour générer une réponse structurée et illustrée si nécessaire.</span>
                     </div>
 
                     <form onSubmit={handleAskGemini} className="relative group">
@@ -198,7 +253,7 @@ const App: React.FC = () => {
                                     handleAskGemini();
                                 }
                             }}
-                            placeholder="Saisir commande..."
+                            placeholder="Ex: comen fer une repriz iphone ? / je compren pa le stok gestix..."
                             className="w-full p-6 md:p-8 pr-20 md:pr-24 dark:bg-black bg-neutral-50 border dark:border-[#333] border-neutral-300 rounded-3xl focus:border-orange-600 dark:focus:bg-[#141414] focus:bg-neutral-50 transition-all outline-none resize-none h-32 md:h-36 dark:text-white text-black font-mono dark:placeholder:text-[#333] placeholder:text-neutral-400 relative z-10 text-base md:text-lg"
                         />
                         <button 
