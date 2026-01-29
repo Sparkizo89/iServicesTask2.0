@@ -28,19 +28,19 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
     }
 
   return (
-    <div className="bg-[#0f0f0f] rounded-[32px] p-6 border border-[#262626] flex flex-col h-full group hover:bg-[#141414] hover:border-neutral-700 transition-all duration-300 relative overflow-hidden">
+    <div className="dark:bg-[#0f0f0f] bg-white rounded-[32px] p-6 border dark:border-[#262626] border-neutral-200 flex flex-col h-full group hover:dark:bg-[#141414] hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-300 relative overflow-hidden shadow-lg dark:shadow-none">
       
       {/* Decorative large icon in background */}
-      <div className="absolute -right-6 -bottom-6 text-9xl text-[#1a1a1a] group-hover:text-[#222] transition-colors rotate-12 pointer-events-none opacity-50">
+      <div className="absolute -right-6 -bottom-6 text-9xl dark:text-[#1a1a1a] text-neutral-100 group-hover:dark:text-[#222] group-hover:text-neutral-200 transition-colors rotate-12 pointer-events-none opacity-50">
         <Icon />
       </div>
 
       <div className="flex items-center gap-5 mb-8 relative z-10">
-        <div className="w-14 h-14 rounded-full bg-neutral-900 border border-neutral-800 text-white flex items-center justify-center text-xl shrink-0 group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-lg">
+        <div className="w-14 h-14 rounded-full dark:bg-neutral-900 bg-neutral-100 border dark:border-neutral-800 border-neutral-300 dark:text-white text-black flex items-center justify-center text-xl shrink-0 group-hover:scale-110 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all duration-300 shadow-lg">
           <Icon />
         </div>
         <div className="flex-1 min-w-0">
-             <h3 className="font-tech text-xl text-white uppercase tracking-wider truncate">{contact.role}</h3>
+             <h3 className="font-tech text-xl dark:text-white text-black uppercase tracking-wider truncate">{contact.role}</h3>
              <div className="h-0.5 w-8 bg-orange-600 mt-2 group-hover:w-full transition-all duration-500"></div>
         </div>
       </div>
@@ -48,8 +48,8 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
       <div className="space-y-6 flex-1 relative z-10">
         {contact.email && (
             <div className="group/item">
-                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">Email_Address</span>
-                <a href={`mailto:${contact.email}`} className="text-sm font-mono text-neutral-300 hover:text-orange-500 break-all transition-colors flex items-center gap-2">
+                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">Adresse_Email</span>
+                <a href={`mailto:${contact.email}`} className="text-sm font-mono dark:text-neutral-300 text-neutral-700 hover:text-orange-500 break-all transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-neutral-700 rounded-full group-hover/item:bg-orange-500 transition-colors"></span>
                     {contact.email}
                 </a>
@@ -60,9 +60,9 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
              <div className="space-y-3">
                 <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block">Communications</span>
                 {contact.phones.map((phone, idx) => (
-                    <div key={idx} className="flex flex-col bg-[#000] p-3 rounded-xl border border-[#222]">
+                    <div key={idx} className="flex flex-col dark:bg-[#000] bg-neutral-100 p-3 rounded-xl border dark:border-[#222] border-neutral-200">
                         <span className="text-[10px] text-neutral-500 uppercase">{phone.label}</span>
-                        <span className="font-tech text-lg text-white tracking-wider">{phone.number}</span>
+                        <span className="font-tech text-lg dark:text-white text-black tracking-wider">{phone.number}</span>
                     </div>
                 ))}
             </div>
@@ -70,15 +70,15 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
 
         {contact.cc && (
              <div>
-                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">CC_List</span>
-                <div className="text-[10px] font-mono text-neutral-500 bg-[#1a1a1a] p-2 rounded border border-[#333] truncate">
+                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">Liste_CC</span>
+                <div className="text-[10px] font-mono text-neutral-500 dark:bg-[#1a1a1a] bg-neutral-100 p-2 rounded border dark:border-[#333] border-neutral-200 truncate">
                     {contact.cc}
                 </div>
             </div>
         )}
         
         {contact.desc && (
-            <div className="pt-4 border-t border-dashed border-[#333] text-xs font-mono text-neutral-400">
+            <div className="pt-4 border-t border-dashed dark:border-[#333] border-neutral-300 text-xs font-mono text-neutral-500">
                 // {contact.desc}
             </div>
         )}

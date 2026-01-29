@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ProcedureCard from './components/ProcedureCard';
@@ -18,6 +18,20 @@ const App: React.FC = () => {
   const [selectedProcedure, setSelectedProcedure] = useState<Procedure | null>(null);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  
+  // Theme State (Default to Dark)
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Apply theme to HTML tag
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   // Gemini State
   const [guideQuery, setGuideQuery] = useState('');
@@ -91,20 +105,20 @@ const App: React.FC = () => {
     if (activeCategory === 'guide') {
         return (
             <div className="max-w-4xl mx-auto h-full flex flex-col">
-                 <div className="flex items-center gap-6 mb-8">
-                        <div className="w-16 h-16 flex items-center justify-center bg-orange-600 text-black rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.4)] border border-orange-500"><FaBookOpen className="text-2xl"/></div>
+                 <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
+                        <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-orange-600 text-black rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.4)] border border-orange-500 shrink-0"><FaBookOpen className="text-xl md:text-2xl"/></div>
                         <div>
-                            <h2 className="text-4xl font-tech font-bold text-white tracking-tighter uppercase">AI Guide</h2>
-                            <p className="text-neutral-500 font-mono text-xs uppercase tracking-widest mt-2 border-l-2 border-orange-600 pl-3">Neural Knowledge Base</p>
+                            <h2 className="text-2xl md:text-4xl font-tech font-bold dark:text-white text-black tracking-tighter uppercase transition-colors">Guide IA</h2>
+                            <p className="text-neutral-500 font-mono text-[10px] md:text-xs uppercase tracking-widest mt-1 md:mt-2 border-l-2 border-orange-600 pl-3">Base de Connaissances Neurale</p>
                         </div>
                 </div>
 
-                <div className="bg-[#0f0f0f] rounded-[32px] border border-[#262626] p-10 flex flex-col gap-8 relative overflow-hidden shadow-2xl">
+                <div className="dark:bg-[#0f0f0f] bg-white rounded-[24px] md:rounded-[32px] border dark:border-[#262626] border-neutral-300 p-6 md:p-10 flex flex-col gap-6 md:gap-8 relative overflow-hidden shadow-2xl transition-colors">
                     <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-600 to-transparent"></div>
 
-                    <div className="flex gap-6 items-start text-sm text-neutral-400 font-mono bg-black p-6 rounded-2xl border border-[#222]">
-                        <FaRobot className="text-2xl text-orange-600 shrink-0 mt-1" />
-                        <span className="leading-7">Enter your query. The system will analyze the official protocol PDF to generate a compliant response.</span>
+                    <div className="flex gap-4 md:gap-6 items-start text-xs md:text-sm dark:text-neutral-400 text-neutral-600 font-mono dark:bg-black bg-neutral-100 p-4 md:p-6 rounded-2xl border dark:border-[#222] border-neutral-200 transition-colors">
+                        <FaRobot className="text-lg md:text-2xl text-orange-600 shrink-0 mt-1" />
+                        <span className="leading-relaxed">Entrez votre demande. Le système analysera le PDF du protocole officiel pour générer une réponse conforme.</span>
                     </div>
 
                     <form onSubmit={handleAskGemini} className="relative group">
@@ -118,26 +132,26 @@ const App: React.FC = () => {
                                     handleAskGemini();
                                 }
                             }}
-                            placeholder="Input command..."
-                            className="w-full p-8 pr-24 bg-black border border-[#333] rounded-3xl focus:border-orange-600 outline-none resize-none h-48 text-white font-mono placeholder:text-[#333] transition-all relative z-10 text-lg"
+                            placeholder="Saisir commande..."
+                            className="w-full p-6 md:p-8 pr-20 md:pr-24 dark:bg-black bg-neutral-50 border dark:border-[#333] border-neutral-300 rounded-3xl focus:border-orange-600 dark:focus:bg-[#141414] focus:bg-neutral-50 transition-all outline-none resize-none h-40 md:h-48 dark:text-white text-black font-mono dark:placeholder:text-[#333] placeholder:text-neutral-400 relative z-10 text-base md:text-lg"
                         />
                         <button 
                             type="submit"
                             disabled={isThinking || !guideQuery.trim()}
-                            className="absolute bottom-6 right-6 w-14 h-14 bg-orange-600 text-black rounded-xl flex items-center justify-center hover:bg-white hover:text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(234,88,12,0.4)] z-20"
+                            className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-12 h-12 md:w-14 md:h-14 bg-orange-600 text-black rounded-xl flex items-center justify-center hover:bg-white hover:text-black disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(234,88,12,0.4)] z-20"
                         >
                             {isThinking ? (
-                                <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                                <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
                             ) : (
-                                <FaPaperPlane className="text-xl" />
+                                <FaPaperPlane className="text-lg md:text-xl" />
                             )}
                         </button>
                     </form>
 
                     {guideResponse && (
-                        <div className="animate-[fadeIn_0.5s_ease-out] border-t border-[#262626] pt-8">
-                            <h3 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-6 font-tech">Analysis Result</h3>
-                            <div className="bg-[#111] p-8 rounded-2xl border-l-4 border-orange-600 text-neutral-300 leading-8 whitespace-pre-line font-mono text-sm shadow-inner">
+                        <div className="animate-[fadeIn_0.5s_ease-out] border-t dark:border-[#262626] border-neutral-200 pt-6 md:pt-8 transition-colors">
+                            <h3 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-4 md:mb-6 font-tech">Résultat de l'Analyse</h3>
+                            <div className="dark:bg-[#111] bg-neutral-100 p-6 md:p-8 rounded-2xl border-l-4 border-orange-600 dark:text-neutral-300 text-neutral-800 leading-relaxed md:leading-8 whitespace-pre-line font-mono text-xs md:text-sm shadow-inner transition-colors">
                                 {guideResponse}
                             </div>
                         </div>
@@ -150,17 +164,17 @@ const App: React.FC = () => {
     if (activeCategory === 'contacts') {
         return (
             <>
-                <div className="flex items-center gap-5 mb-10 pl-2">
-                        <div className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full"><FaAddressBook className="text-lg"/></div>
-                        <h2 className="text-3xl font-tech font-bold text-white tracking-tighter uppercase">Directory</h2>
+                <div className="flex items-center gap-4 md:gap-5 mb-6 md:mb-10 pl-2">
+                        <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center dark:bg-white bg-black dark:text-black text-white rounded-full transition-colors"><FaAddressBook className="text-base md:text-lg"/></div>
+                        <h2 className="text-2xl md:text-3xl font-tech font-bold dark:text-white text-black tracking-tighter uppercase transition-colors">Répertoire</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-24 lg:pb-20">
                     {filteredContacts.map(c => (
                         <ContactCard key={c.id} contact={c} />
                     ))}
                     {filteredContacts.length === 0 && (
-                        <div className="col-span-full text-center py-32 text-neutral-700 font-tech text-xl uppercase tracking-widest">
-                            // NO_CONTACTS_FOUND //
+                        <div className="col-span-full text-center py-32 dark:text-neutral-700 text-neutral-400 font-tech text-xl uppercase tracking-widest">
+                            // AUCUN_CONTACT_TROUVE //
                         </div>
                     )}
                 </div>
@@ -170,7 +184,7 @@ const App: React.FC = () => {
 
     // Default Procedures View
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-24 lg:pb-20">
             {filteredProcedures.map(p => (
                 <ProcedureCard 
                 key={p.id} 
@@ -179,8 +193,8 @@ const App: React.FC = () => {
                 />
             ))}
             {filteredProcedures.length === 0 && (
-                <div className="col-span-full text-center py-32 text-neutral-700 font-tech text-xl uppercase tracking-widest">
-                    // NO_PROCEDURES_FOUND //
+                <div className="col-span-full text-center py-32 dark:text-neutral-700 text-neutral-400 font-tech text-xl uppercase tracking-widest">
+                    // AUCUNE_PROCEDURE_TROUVEE //
                 </div>
             )}
         </div>
@@ -188,8 +202,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-black text-white">
-      <Header />
+    <div className="h-screen flex flex-col overflow-hidden dark:bg-black bg-[#f5f5f5] dark:text-white text-black transition-colors duration-300">
+      <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeCategory={activeCategory} onSelectCategory={setActiveCategory} />
@@ -198,17 +212,17 @@ const App: React.FC = () => {
           {/* Background decoration */}
           <div className="fixed top-0 left-0 w-full h-full bg-dots pointer-events-none opacity-40 z-0"></div>
 
-          <div className="max-w-7xl mx-auto space-y-10 h-full flex flex-col relative z-10">
+          <div className="max-w-7xl mx-auto space-y-6 md:space-y-10 h-full flex flex-col relative z-10">
             {/* Search (Only for non-guide categories) */}
             {activeCategory !== 'guide' && (
                 <div className="relative group shrink-0">
-                    <FaMagnifyingGlass className="absolute left-8 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-orange-600 transition-colors z-20 text-lg" />
+                    <FaMagnifyingGlass className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-orange-600 transition-colors z-20 text-base md:text-lg" />
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-20 pr-8 py-7 bg-[#0f0f0f] border border-[#262626] rounded-full focus:border-orange-600 focus:bg-[#141414] transition-all outline-none text-xl text-white font-tech tracking-wide placeholder:text-[#333] shadow-lg"
-                        placeholder={activeCategory === 'contacts' ? "SEARCH_CONTACT_DB..." : "SEARCH_PROTOCOL..."}
+                        className="w-full pl-14 md:pl-20 pr-6 md:pr-8 py-5 md:py-7 dark:bg-[#0f0f0f] bg-white border dark:border-[#262626] border-neutral-300 rounded-full focus:border-orange-600 dark:focus:bg-[#141414] focus:bg-neutral-50 transition-all outline-none text-base md:text-xl dark:text-white text-black font-tech tracking-wide dark:placeholder:text-[#333] placeholder:text-neutral-400 shadow-lg"
+                        placeholder={activeCategory === 'contacts' ? "RECHERCHE_CONTACT..." : "RECHERCHE_PROTOCOLE..."}
                     />
                     {/* Search glow */}
                     <div className="absolute inset-0 rounded-full bg-orange-600/5 blur-2xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500"></div>

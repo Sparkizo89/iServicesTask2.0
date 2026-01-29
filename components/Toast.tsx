@@ -25,7 +25,7 @@ const Toast: React.FC<ToastProps> = ({ message, isVisible, onClose }) => {
     >
       <FaSquareCheck className="text-xl text-orange-600" />
       <div className="flex flex-col">
-          <span className="font-bold text-sm uppercase tracking-widest">System Notification</span>
+          <span className="font-bold text-sm uppercase tracking-widest">Notification Système</span>
           <span className="text-xs font-mono font-bold mt-1">{message}</span>
       </div>
     </div>
