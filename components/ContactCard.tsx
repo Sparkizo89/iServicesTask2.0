@@ -28,52 +28,58 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
     }
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all h-full flex flex-col">
-      <div className="flex items-center gap-4 mb-5">
-        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
-          <Icon />
-        </div>
-        <h3 className="font-bold text-slate-900 text-lg leading-tight">{contact.role}</h3>
+    <div className="bg-[#0f0f0f] rounded-[32px] p-6 border border-[#262626] flex flex-col h-full group hover:bg-[#141414] hover:border-neutral-700 transition-all duration-300 relative overflow-hidden">
+      
+      {/* Decorative large icon in background */}
+      <div className="absolute -right-6 -bottom-6 text-9xl text-[#1a1a1a] group-hover:text-[#222] transition-colors rotate-12 pointer-events-none opacity-50">
+        <Icon />
       </div>
 
-      <div className="space-y-4 flex-1">
+      <div className="flex items-center gap-5 mb-8 relative z-10">
+        <div className="w-14 h-14 rounded-full bg-neutral-900 border border-neutral-800 text-white flex items-center justify-center text-xl shrink-0 group-hover:scale-110 group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-lg">
+          <Icon />
+        </div>
+        <div className="flex-1 min-w-0">
+             <h3 className="font-tech text-xl text-white uppercase tracking-wider truncate">{contact.role}</h3>
+             <div className="h-0.5 w-8 bg-orange-600 mt-2 group-hover:w-full transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <div className="space-y-6 flex-1 relative z-10">
         {contact.email && (
-            <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email Principal</span>
-                <a href={`mailto:${contact.email}`} className="text-sm font-medium text-blue-600 hover:underline break-all block">
+            <div className="group/item">
+                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">Email_Address</span>
+                <a href={`mailto:${contact.email}`} className="text-sm font-mono text-neutral-300 hover:text-orange-500 break-all transition-colors flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-neutral-700 rounded-full group-hover/item:bg-orange-500 transition-colors"></span>
                     {contact.email}
                 </a>
             </div>
         )}
 
-        {contact.cc && (
-             <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">En copie (CC)</span>
-                <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">
-                    {contact.cc.split('+').map((email, idx) => (
-                        <div key={idx} className="mb-0.5 last:mb-0">{email.trim()}</div>
-                    ))}
-                </div>
+        {contact.phones && contact.phones.length > 0 && (
+             <div className="space-y-3">
+                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block">Communications</span>
+                {contact.phones.map((phone, idx) => (
+                    <div key={idx} className="flex flex-col bg-[#000] p-3 rounded-xl border border-[#222]">
+                        <span className="text-[10px] text-neutral-500 uppercase">{phone.label}</span>
+                        <span className="font-tech text-lg text-white tracking-wider">{phone.number}</span>
+                    </div>
+                ))}
             </div>
         )}
 
-        {contact.phones && contact.phones.length > 0 && (
+        {contact.cc && (
              <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Téléphone</span>
-                <div className="space-y-2">
-                    {contact.phones.map((phone, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-50 last:border-0 pb-1 last:pb-0">
-                            <span className="text-slate-500">{phone.label}:</span>
-                            <span className="font-bold text-slate-700 font-mono">{phone.number}</span>
-                        </div>
-                    ))}
+                <span className="text-[9px] font-tech text-neutral-500 uppercase tracking-widest block mb-1">CC_List</span>
+                <div className="text-[10px] font-mono text-neutral-500 bg-[#1a1a1a] p-2 rounded border border-[#333] truncate">
+                    {contact.cc}
                 </div>
             </div>
         )}
         
         {contact.desc && (
-            <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-400 italic whitespace-pre-line">
-                {contact.desc}
+            <div className="pt-4 border-t border-dashed border-[#333] text-xs font-mono text-neutral-400">
+                // {contact.desc}
             </div>
         )}
       </div>

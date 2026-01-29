@@ -15,7 +15,6 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onClick }) => 
     || Fa6Icons[Object.keys(Fa6Icons).find(k => k.toLowerCase() === procedure.icon.replace('fa-', '').replace(/-/g, ''))] 
     || Fa6Icons.FaBolt;
 
-    // Mapping manually for the known ones to be safe if dynamic fails or names differ
     let Icon = Fa6Icons.FaBolt;
     switch(procedure.icon) {
         case 'fa-mobile-retro': Icon = Fa6Icons.FaMobileRetro; break;
@@ -28,23 +27,41 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onClick }) => 
   return (
     <div 
       onClick={() => onClick(procedure)} 
-      className="bg-white rounded-2xl p-5 border border-slate-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/50 cursor-pointer transition-all group flex flex-col gap-4 h-full"
+      className="relative bg-[#0f0f0f] rounded-[32px] p-7 cursor-pointer transition-all duration-300 group overflow-hidden border border-[#262626] hover:border-orange-600/50 hover:bg-[#141414] active:scale-[0.98] glow-hover"
     >
-      <div className="flex items-center justify-between">
-        <div className="w-12 h-12 rounded-xl bg-slate-50 text-orange-600 flex items-center justify-center text-xl group-hover:bg-orange-600 group-hover:text-white transition-all">
+      {/* Nothing Glitch Texture on Hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] transition-opacity duration-500 pointer-events-none"></div>
+
+      {/* Header with Icon and Code */}
+      <div className="flex justify-between items-start mb-10">
+        <div className="w-16 h-16 rounded-2xl bg-black border border-[#333] text-white flex items-center justify-center text-3xl group-hover:bg-orange-600 group-hover:text-black group-hover:border-orange-600 transition-all duration-300 shadow-inner">
           <Icon />
         </div>
-        <span className="text-[9px] font-black px-2 py-1 bg-slate-100 rounded text-slate-500 uppercase tracking-tighter">
-          {procedure.code}
-        </span>
+        <div className="flex flex-col items-end">
+            <span className="text-4xl text-[#222] group-hover:text-[#333] transition-colors font-tech font-bold leading-none select-none">
+                0{Math.floor(Math.random() * 9)}
+            </span>
+             <span className="text-[10px] font-tech text-orange-600 border border-orange-600/30 px-2 py-0.5 rounded uppercase tracking-wider bg-orange-600/5 mt-1">
+              {procedure.code}
+            </span>
+        </div>
       </div>
-      <div>
-        <h3 className="font-bold text-slate-900 group-hover:text-orange-600 transition-colors">
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <h3 className="font-tech text-2xl text-white mb-3 uppercase tracking-tight leading-none group-hover:text-orange-500 transition-colors">
           {procedure.title}
         </h3>
-        <p className="text-xs text-slate-500 line-clamp-2 mt-1">
+        <p className="text-sm font-sans text-neutral-500 leading-relaxed border-l-2 border-[#262626] pl-3 group-hover:border-orange-600/50 transition-colors">
           {procedure.desc}
         </p>
+      </div>
+
+      {/* Footer Dots */}
+      <div className="absolute bottom-6 right-6 flex gap-1.5 opacity-30 group-hover:opacity-100 transition-opacity">
+         <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+         <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+         <div className="w-1.5 h-1.5 rounded-full bg-orange-600"></div>
       </div>
     </div>
   );

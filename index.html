@@ -5,27 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iServices Task</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        /* Custom scrollbar to match original */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        :root {
+            --nothing-black: #000000;
+            --nothing-dark: #0f0f0f;
+            --nothing-border: #333333;
+            --nothing-accent: #ea580c; /* Orange iServices styled like Nothing Red */
         }
-        .animate-shake { animation: shake 0.4s ease-in-out; }
-        
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #ea580c;
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--nothing-black); 
+            color: #e5e5e5;
         }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #ea580c;
+        
+        h1, h2, h3, h4, .font-tech {
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Nothing Dot Pattern */
+        .bg-dots {
+            background-image: radial-gradient(#262626 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+
+        /* Custom Scrollbar - Minimal */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--nothing-black); }
+        ::-webkit-scrollbar-thumb { background: #404040; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--nothing-accent); }
+
+        /* Animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); opacity: 0.1; }
+            50% { opacity: 0.2; }
+            100% { transform: translateY(100%); opacity: 0.1; }
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(234, 88, 12, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(234, 88, 12, 0.5); }
+        }
+
+        .scanline-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.02), transparent);
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        /* Utility for Glass Nothing Style */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid #262626;
+        }
+
+        .glow-hover:hover {
+            box-shadow: 0 0 25px rgba(234, 88, 12, 0.4);
+            border-color: rgba(234, 88, 12, 0.6);
         }
     </style>
 <script type="importmap">
@@ -42,7 +82,8 @@
 }
 </script>
 </head>
-<body>
+<body class="bg-dots min-h-screen overflow-hidden selection:bg-orange-600 selection:text-white">
+    <div class="scanline-overlay"></div>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>

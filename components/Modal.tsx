@@ -15,7 +15,6 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showValidationAlert, setShowValidationAlert] = useState(false);
 
-  // Initialize form when procedure changes
   useEffect(() => {
     if (procedure) {
       const initialStatic: Record<string, string> = {};
@@ -23,7 +22,7 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
         initialStatic[f.id] = f.default || '';
       });
       setStaticData(initialStatic);
-      setRows([{}]); // Start with one row
+      setRows([{}]); 
       setUsageMagasin(false);
       setErrors([]);
       setShowValidationAlert(false);
@@ -32,7 +31,6 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
 
   const handleStaticChange = (id: string, value: string) => {
     setStaticData(prev => ({ ...prev, [id]: value }));
-    // Clear error for this field if it exists
     if (errors.includes(id)) {
       setErrors(prev => prev.filter(e => e !== id));
     }
@@ -65,15 +63,12 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
 
   const validate = (): boolean => {
     const newErrors: string[] = [];
-    
-    // Check static fields for 'reason' or 'justification'
     Object.keys(staticData).forEach(key => {
         if ((key.includes('reason') || key.includes('justification')) && !staticData[key]) {
             newErrors.push(key);
         }
     });
 
-    // Specific check if 'reason' exists in procedure definitions but not filled
     const reasonField = procedure?.staticFields.find(f => f.id === 'reason' || f.id === 'justification');
     if (reasonField && !staticData[reasonField.id]) {
          if(!newErrors.includes(reasonField.id)) newErrors.push(reasonField.id);
@@ -122,7 +117,6 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
         bodyText = `Bonjour,\n\nAction : ${actionTitle}\n\n`;
         rows.forEach(item => {
             Object.entries(item).forEach(([k, v]) => {
-                // Find label
                 const label = procedure.dynamicFields.find(f => f.id === k)?.label || k;
                 if (v) bodyText += `${label.toUpperCase()} : ${v}\n`;
             });
@@ -138,14 +132,13 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
     if (!validate() || !procedure) return;
 
     let subject = procedure.customSubject || `${procedure.code} - ${procedure.title}`;
-    // Override logic for Usage Magasin
     if (usageMagasin) subject = "SAI";
     else if (procedure.id === 'sort') subject = "SORT";
 
     const body = generateBody();
     const mailto = `mailto:${procedure.to}?cc=${procedure.cc}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailto, '_blank');
-    onShowToast("Gmail ouvert !");
+    onShowToast("App launched");
   };
 
   const handleCopyTable = async () => {
@@ -159,82 +152,85 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
         const blob = new Blob([content], { type: 'text/html' });
         const dataItem = new ClipboardItem({ 'text/html': blob });
         await navigator.clipboard.write([dataItem]);
-        onShowToast("Tableau copié !");
+        onShowToast("Data Copied");
     } catch (err) {
         console.error(err);
-        onShowToast("Erreur de copie");
+        onShowToast("Error");
     }
   };
 
   if (!procedure) return null;
 
   const displayedCode = (usageMagasin && procedure.id === 'sort') ? 'SAI' : (procedure.id === 'sort' ? 'SORT' : procedure.code);
-  const codeColor = (usageMagasin && procedure.id === 'sort') ? 'bg-orange-600' : 'bg-blue-600';
+  const codeColor = (usageMagasin && procedure.id === 'sort') ? 'text-orange-500 border-orange-500' : 'text-neutral-400 border-neutral-700';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl relative z-10 flex flex-col max-h-[90vh] animate-[fadeIn_0.3s_ease-out] overflow-hidden">
+      <div className="absolute inset-0 bg-[#000]/90 backdrop-blur-md" onClick={onClose}></div>
+      <div className="bg-[#050505] rounded-[32px] border border-[#262626] w-full max-w-6xl relative z-10 flex flex-col max-h-[90vh] animate-[fadeIn_0.3s_ease-out] overflow-hidden shadow-2xl">
         
+        {/* Error Banner */}
         {showValidationAlert && (
-             <div className="bg-red-600 text-white px-6 py-3 flex items-center justify-between animate-bounce mt-2 mx-6 rounded-xl shadow-lg">
+             <div className="bg-red-900/10 border-b border-red-500 text-red-500 px-8 py-3 flex items-center justify-between font-tech tracking-wider uppercase animate-shake">
                 <div className="flex items-center gap-3">
                     <FaCircleExclamation />
-                    <span className="text-sm font-bold">Champ obligatoire : Veuillez remplir la justification avant de continuer.</span>
+                    <span className="text-sm">Error: Missing Required Field</span>
                 </div>
-                <button onClick={() => setShowValidationAlert(false)} className="text-white/80 hover:text-white"><FaXmark /></button>
+                <button onClick={() => setShowValidationAlert(false)} className="hover:text-white"><FaXmark /></button>
             </div>
         )}
 
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <div className="flex items-center gap-4">
+        {/* Header */}
+        <div className="p-8 border-b border-[#262626] flex justify-between items-center bg-[#0a0a0a]">
+            <div className="flex items-center gap-6">
                 <div>
-                    <span className={`${codeColor} text-white text-[10px] font-black px-2 py-0.5 rounded uppercase mb-1 inline-block tracking-tighter transition-colors duration-300`}>{displayedCode}</span>
-                    <h2 className="text-xl font-extrabold text-slate-900">{procedure.title}</h2>
+                    <span className={`${codeColor} text-[10px] font-tech font-bold px-3 py-1 border rounded-full bg-transparent uppercase mb-2 inline-block tracking-[0.2em]`}>{displayedCode}</span>
+                    <h2 className="text-3xl font-tech font-bold text-white tracking-tighter uppercase">{procedure.title}</h2>
                 </div>
                 
                 {procedure.id === 'sort' && (
-                    <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-3 bg-[#111] px-5 py-2 rounded-full border border-[#262626]">
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" checked={usageMagasin} onChange={(e) => handleUsageMagasinToggle(e.target.checked)} className="sr-only peer" />
-                            <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
+                            <div className="w-10 h-5 bg-[#333] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
                         </label>
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-tight">Usage Magasin</span>
+                        <span className="text-[10px] font-tech font-bold uppercase text-neutral-400 tracking-wider">Internal Use</span>
                     </div>
                 )}
             </div>
-            <button onClick={onClose} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
-                <FaXmark className="text-lg" />
+            <button onClick={onClose} className="w-12 h-12 rounded-full bg-[#111] border border-[#262626] flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300">
+                <FaXmark className="text-xl" />
             </button>
         </div>
         
-        <div className="p-6 overflow-y-auto space-y-6">
+        {/* Content */}
+        <div className="p-8 overflow-y-auto space-y-10 bg-dots scrollbar-thin">
             {/* Static Fields */}
-            <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-6">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 {procedure.staticFields.map(f => (
-                    <div key={f.id} className="col-span-2 md:col-span-1">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{f.label}</label>
+                    <div key={f.id} className="col-span-2 md:col-span-1 group">
+                        <label className="block text-[10px] font-tech font-bold text-neutral-500 uppercase tracking-widest mb-3 ml-1 group-focus-within:text-orange-500 transition-colors">{f.label}</label>
                         {f.options ? (
                              <div className="relative">
                                 <select 
                                     value={staticData[f.id] || ''}
                                     onChange={(e) => handleStaticChange(f.id, e.target.value)}
-                                    className={`w-full p-3 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none cursor-pointer ${errors.includes(f.id) ? 'border-red-500 bg-red-50 animate-shake' : 'border-slate-200'}`}
+                                    className={`w-full px-5 py-4 bg-[#0a0a0a] border ${errors.includes(f.id) ? 'border-red-500' : 'border-[#262626]'} rounded-xl text-sm text-white focus:border-orange-600 focus:bg-black outline-none transition-all appearance-none cursor-pointer font-mono shadow-inner`}
                                 >
-                                    <option value="" disabled>{f.placeholder || 'Sélectionner...'}</option>
+                                    <option value="" disabled>{f.placeholder || 'SELECT_OPTION'}</option>
                                     {f.options.map(opt => (
                                         <option key={opt} value={opt}>{opt}</option>
                                     ))}
                                 </select>
-                                <FaChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs" />
+                                <FaChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none text-xs" />
                             </div>
                         ) : (
                             <input 
                                 type="text" 
                                 value={staticData[f.id] || ''} 
                                 onChange={(e) => handleStaticChange(f.id, e.target.value)}
-                                className={`w-full p-3 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none transition-all ${errors.includes(f.id) ? 'border-red-500 bg-red-50 animate-shake' : 'border-slate-200'}`}
-                                placeholder={f.placeholder || ''}
+                                className={`w-full px-5 py-4 bg-[#0a0a0a] border ${errors.includes(f.id) ? 'border-red-500' : 'border-[#262626]'} rounded-xl text-sm text-white focus:border-orange-600 focus:bg-black outline-none transition-all font-mono placeholder:text-neutral-800 shadow-inner`}
+                                placeholder={f.placeholder || 'INPUT_DATA'}
                             />
                         )}
                     </div>
@@ -242,29 +238,32 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
             </div>
 
             {/* Dynamic Rows */}
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Détails de l'opération</h3>
-                    <button onClick={addRow} className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition-colors flex items-center gap-2">
-                        <FaPlus /> Ajouter une ligne
+            <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-[#262626] relative overflow-hidden">
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                    <h3 className="text-xs font-tech font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                        <span className="w-2 h-2 bg-orange-600 rounded-full animate-pulse"></span>
+                        Operations_List
+                    </h3>
+                    <button onClick={addRow} className="bg-white hover:bg-neutral-200 text-black text-xs font-tech font-bold py-3 px-6 rounded-full transition-colors flex items-center gap-2 uppercase tracking-wider">
+                        <FaPlus /> Add Line
                     </button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4 relative z-10">
                     {rows.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex gap-2 items-end bg-slate-50/50 p-2 rounded-xl border border-dashed border-slate-200 animate-[fadeIn_0.3s_ease-out]">
+                        <div key={rowIndex} className="flex gap-4 items-end bg-[#050505] p-5 rounded-2xl border border-[#222] animate-[fadeIn_0.3s_ease-out] hover:border-[#444] transition-colors">
                             {procedure.dynamicFields.map(f => (
                                 <div key={f.id} className={f.width === 'flex-1' ? 'flex-1' : f.width}>
-                                    <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1 whitespace-nowrap overflow-hidden text-ellipsis">{f.label}</label>
+                                    <label className="block text-[9px] font-mono font-bold text-neutral-600 uppercase mb-2 whitespace-nowrap">{f.label}</label>
                                     <input 
                                         type={f.type || 'text'}
                                         value={row[f.id] || ''}
                                         onChange={(e) => handleRowChange(rowIndex, f.id, e.target.value)}
-                                        className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-orange-500 transition-colors"
-                                        placeholder={f.placeholder || ''}
+                                        className="w-full p-2 bg-transparent border-b border-[#333] focus:border-orange-600 rounded-none text-sm text-white outline-none transition-colors font-mono placeholder:text-[#222]"
+                                        placeholder={f.placeholder || '...'}
                                     />
                                 </div>
                             ))}
-                             <button onClick={() => removeRow(rowIndex)} className="w-9 h-9 flex-none flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors">
+                             <button onClick={() => removeRow(rowIndex)} className="w-8 h-8 flex-none flex items-center justify-center text-neutral-600 hover:text-red-500 transition-colors">
                                 <FaTrashCan />
                             </button>
                         </div>
@@ -272,19 +271,25 @@ const Modal: React.FC<ModalProps> = ({ procedure, onClose, onShowToast }) => {
                 </div>
             </div>
             
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Destinataire iServices</p>
-                <div className="text-sm font-bold text-slate-700">À: {procedure.to}</div>
-                <div className="text-[11px] text-slate-400 italic">Cc: {procedure.cc}</div>
+            <div className="flex flex-col md:flex-row gap-6 p-6 bg-[#0f0f0f] rounded-2xl border border-[#262626]">
+                <div className="flex-1">
+                    <p className="text-[10px] font-tech font-bold uppercase text-neutral-500 mb-2 tracking-widest">Recipient</p>
+                    <div className="text-sm font-bold text-white font-mono bg-black p-3 rounded border border-[#222]">{procedure.to}</div>
+                </div>
+                 <div className="flex-1">
+                    <p className="text-[10px] font-tech font-bold uppercase text-neutral-500 mb-2 tracking-widest">Carbon Copy (CC)</p>
+                    <div className="text-[11px] text-neutral-400 font-mono bg-black p-3 rounded border border-[#222] break-all">{procedure.cc}</div>
+                </div>
             </div>
         </div>
 
-        <div className="p-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3 mt-auto bg-white">
-            <button onClick={handleSendEmail} className="w-full py-4 bg-gradient-to-br from-orange-600 to-orange-500 text-white font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-3 text-lg">
-                <FaPaperPlane /> OUVRIR GMAIL
+        {/* Footer Actions */}
+        <div className="p-8 border-t border-[#262626] grid grid-cols-1 md:grid-cols-2 gap-4 mt-auto bg-[#0a0a0a]">
+            <button onClick={handleSendEmail} className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-black font-bold font-tech text-base rounded-2xl hover:scale-[1.01] active:scale-95 transition-all shadow-[0_0_25px_rgba(234,88,12,0.4)] flex items-center justify-center gap-3 uppercase tracking-widest group">
+                <FaPaperPlane className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" /> Launch Mail Protocol
             </button>
-            <button onClick={handleCopyTable} className="w-full py-4 bg-blue-50 text-blue-700 font-bold rounded-2xl hover:bg-blue-100 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg">
-                <FaCopy /> COPIER TABLEAU
+            <button onClick={handleCopyTable} className="w-full py-5 bg-black hover:bg-[#111] text-white font-bold font-tech text-base rounded-2xl hover:scale-[1.01] active:scale-95 transition-all border border-[#333] hover:border-white flex items-center justify-center gap-3 uppercase tracking-widest">
+                <FaCopy /> Copy Data
             </button>
         </div>
       </div>

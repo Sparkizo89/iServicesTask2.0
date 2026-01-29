@@ -9,49 +9,53 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeCategory, onSelectCategory }) => {
   const getButtonClass = (category: ProcedureCategory, isActive: boolean) => {
-    const baseClass = "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium";
+    const baseClass = "w-full flex items-center gap-4 px-5 py-4 rounded-full transition-all duration-300 font-tech text-sm tracking-widest uppercase relative overflow-hidden group";
     
-    // Special styling for specific tabs
-    if (category === 'contacts' || category === 'guide') {
-        return isActive
-            ? `${baseClass} bg-blue-50 text-blue-700 font-bold`
-            : `${baseClass} text-slate-500 hover:bg-blue-50 hover:text-blue-600`;
-    }
-
     if (isActive) {
-        return `${baseClass} bg-orange-50 text-orange-700 font-bold`;
+        return `${baseClass} bg-orange-600 text-black font-bold shadow-[0_0_20px_rgba(234,88,12,0.4)] scale-105`;
     }
 
-    return `${baseClass} text-slate-500 hover:bg-slate-50`;
+    return `${baseClass} text-neutral-500 hover:text-white hover:bg-[#1a1a1a] border border-transparent hover:border-[#333]`;
   };
 
   return (
-    <aside className="w-20 lg:w-64 bg-white border-r border-slate-200 flex flex-col z-20">
-      <div className="p-4 flex-1 overflow-y-auto">
-        <nav className="space-y-1">
+    <aside className="w-20 lg:w-80 bg-black/50 backdrop-blur-sm border-r border-[#262626] flex flex-col z-20 pt-8">
+      <div className="px-6 flex-1 overflow-y-auto space-y-4">
           <button 
             onClick={() => onSelectCategory('all')} 
             className={getButtonClass('all', activeCategory === 'all')}
           >
-            <FaLayerGroup className="text-lg" /> <span className="hidden lg:inline">Toutes les fiches</span>
+            <FaLayerGroup className="text-lg" /> 
+            <span className="hidden lg:inline">Procédures</span>
+            {activeCategory === 'all' && <div className="absolute right-4 w-2 h-2 bg-black rounded-full animate-pulse"></div>}
           </button>
-
-          <div className="my-4 border-t border-slate-100"></div>
 
           <button 
             onClick={() => onSelectCategory('contacts')} 
             className={getButtonClass('contacts', activeCategory === 'contacts')}
           >
-            <FaAddressBook className="text-lg" /> <span className="hidden lg:inline">Contacts Utiles</span>
+            <FaAddressBook className="text-lg" /> 
+            <span className="hidden lg:inline">Contacts</span>
+             {activeCategory === 'contacts' && <div className="absolute right-4 w-2 h-2 bg-black rounded-full animate-pulse"></div>}
           </button>
+
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-[#333] to-transparent my-4"></div>
 
           <button 
             onClick={() => onSelectCategory('guide')} 
             className={getButtonClass('guide', activeCategory === 'guide')}
           >
-            <FaBookOpen className="text-lg" /> <span className="hidden lg:inline">Guide Procédure</span>
+            <FaBookOpen className="text-lg" /> 
+            <span className="hidden lg:inline">AI Guide</span>
+             {activeCategory === 'guide' && <div className="absolute right-4 w-2 h-2 bg-black rounded-full animate-pulse"></div>}
           </button>
-        </nav>
+      </div>
+      
+      <div className="p-8 border-t border-[#262626]">
+        <div className="flex flex-col gap-1 items-center lg:items-start opacity-40 hover:opacity-100 transition-opacity">
+            <span className="text-[10px] font-tech text-neutral-400 uppercase tracking-widest">iServices Corp</span>
+            <div className="text-[8px] font-mono text-neutral-600">Encoded by GenAI</div>
+        </div>
       </div>
     </aside>
   );
