@@ -9,7 +9,7 @@ import { procedures } from './data/procedures';
 import { contacts } from './data/contacts';
 import { pdfContext } from './data/pdfContext';
 import { Procedure, ProcedureCategory } from './types';
-import { FaMagnifyingGlass, FaAddressBook, FaBookOpen, FaRobot, FaPaperPlane } from 'react-icons/fa6';
+import { FaMagnifyingGlass, FaAddressBook, FaBookOpen, FaRobot, FaPaperPlane, FaSquare } from 'react-icons/fa6';
 import { GoogleGenAI } from "@google/genai";
 
 const App: React.FC = () => {
@@ -74,11 +74,17 @@ const App: React.FC = () => {
         const systemInstruction = `Tu es un assistant virtuel expert pour les employés d'iServices. 
         Ta mission est de répondre aux questions en te basant UNIQUEMENT sur le contexte fourni ci-dessous issu du "Guide des Procédures".
         
-        RÈGLES STRICTES :
+        RÈGLES DE FORMATAGE (OBLIGATOIRES) :
+        1. Utilise le format Markdown pour structurer ta réponse.
+        2. Utilise des titres de niveau 3 (###) pour séparer les étapes ou les sections importantes.
+        3. Utilise des listes à puces (-) pour énumérer des actions ou des conditions.
+        4. Mets en GRAS (**) les mots-clés, les numéros de téléphone, les emails et les actions critiques.
+        5. Sois concis et aéré.
+        
+        RÈGLES DE CONTENU :
         1. Si la réponse est dans le contexte, réponds de manière claire, précise et professionnelle.
         2. Si la réponse ne se trouve PAS dans le contexte, tu dois répondre exactement : "Aucune réponse ne peut être donnée sur la base du guide de procédure actuel."
         3. N'invente jamais d'information.
-        4. Ne mentionne pas que tu es une IA, sois direct.
         
         CONTEXTE DU GUIDE :
         ${pdfContext}`;
@@ -101,10 +107,70 @@ const App: React.FC = () => {
     }
   };
 
+  // Helper to render formatted markdown-like text
+  const renderFormattedResponse = (text: string) => {
+    if (!text) return null;
+
+    const lines = text.split('\n');
+    let delayCounter = 0;
+
+    return (
+        <div className="space-y-3">
+            {lines.map((line, index) => {
+                if (!line.trim()) return <div key={index} className="h-2"></div>;
+
+                // Animation delay calculation
+                const style = { animationDelay: `${delayCounter * 0.05}s` };
+                delayCounter++;
+
+                // Headers (###)
+                if (line.startsWith('###')) {
+                    return (
+                        <h3 key={index} className="text-orange-600 font-tech font-bold text-lg uppercase tracking-wide mt-4 mb-2 flex items-center gap-2 animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
+                            <FaSquare className="text-[8px]" />
+                            {line.replace(/^###\s*/, '')}
+                        </h3>
+                    );
+                }
+
+                // List Items (- )
+                if (line.trim().startsWith('-')) {
+                     // Process bold text inside list items
+                     const content = line.replace(/^\s*-\s*/, '').split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                        part.startsWith('**') && part.endsWith('**') 
+                            ? <strong key={i} className="text-orange-600 dark:text-orange-500 font-bold">{part.slice(2, -2)}</strong> 
+                            : part
+                    );
+
+                    return (
+                        <div key={index} className="flex gap-3 items-start pl-2 animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
+                            <span className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-600 rounded-full mt-2 shrink-0"></span>
+                            <p className="dark:text-neutral-300 text-neutral-700 leading-relaxed text-sm md:text-base">{content}</p>
+                        </div>
+                    );
+                }
+
+                // Standard Paragraphs
+                const content = line.split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                    part.startsWith('**') && part.endsWith('**') 
+                        ? <strong key={i} className="text-black dark:text-white font-bold">{part.slice(2, -2)}</strong> 
+                        : part
+                );
+
+                return (
+                    <p key={index} className="dark:text-neutral-400 text-neutral-600 leading-relaxed text-sm md:text-base animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
+                        {content}
+                    </p>
+                );
+            })}
+        </div>
+    );
+  };
+
   const renderContent = () => {
     if (activeCategory === 'guide') {
         return (
-            <div className="max-w-4xl mx-auto h-full flex flex-col">
+            <div className="max-w-4xl mx-auto h-full flex flex-col pb-10">
                  <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
                         <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-orange-600 text-black rounded-2xl shadow-[0_0_30px_rgba(234,88,12,0.4)] border border-orange-500 shrink-0"><FaBookOpen className="text-xl md:text-2xl"/></div>
                         <div>
@@ -113,12 +179,12 @@ const App: React.FC = () => {
                         </div>
                 </div>
 
-                <div className="dark:bg-[#0f0f0f] bg-white rounded-[24px] md:rounded-[32px] border dark:border-[#262626] border-neutral-300 p-6 md:p-10 flex flex-col gap-6 md:gap-8 relative overflow-hidden shadow-2xl transition-colors">
+                <div className="dark:bg-[#0f0f0f] bg-white rounded-[24px] md:rounded-[32px] border dark:border-[#262626] border-neutral-300 p-6 md:p-10 flex flex-col gap-6 relative overflow-hidden shadow-2xl transition-colors">
                     <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-600 to-transparent"></div>
 
                     <div className="flex gap-4 md:gap-6 items-start text-xs md:text-sm dark:text-neutral-400 text-neutral-600 font-mono dark:bg-black bg-neutral-100 p-4 md:p-6 rounded-2xl border dark:border-[#222] border-neutral-200 transition-colors">
                         <FaRobot className="text-lg md:text-2xl text-orange-600 shrink-0 mt-1" />
-                        <span className="leading-relaxed">Entrez votre demande. Le système analysera le PDF du protocole officiel pour générer une réponse conforme.</span>
+                        <span className="leading-relaxed">Entrez votre demande. Le système analysera le PDF du protocole officiel pour générer une réponse conforme et structurée.</span>
                     </div>
 
                     <form onSubmit={handleAskGemini} className="relative group">
@@ -133,7 +199,7 @@ const App: React.FC = () => {
                                 }
                             }}
                             placeholder="Saisir commande..."
-                            className="w-full p-6 md:p-8 pr-20 md:pr-24 dark:bg-black bg-neutral-50 border dark:border-[#333] border-neutral-300 rounded-3xl focus:border-orange-600 dark:focus:bg-[#141414] focus:bg-neutral-50 transition-all outline-none resize-none h-40 md:h-48 dark:text-white text-black font-mono dark:placeholder:text-[#333] placeholder:text-neutral-400 relative z-10 text-base md:text-lg"
+                            className="w-full p-6 md:p-8 pr-20 md:pr-24 dark:bg-black bg-neutral-50 border dark:border-[#333] border-neutral-300 rounded-3xl focus:border-orange-600 dark:focus:bg-[#141414] focus:bg-neutral-50 transition-all outline-none resize-none h-32 md:h-36 dark:text-white text-black font-mono dark:placeholder:text-[#333] placeholder:text-neutral-400 relative z-10 text-base md:text-lg"
                         />
                         <button 
                             type="submit"
@@ -149,10 +215,10 @@ const App: React.FC = () => {
                     </form>
 
                     {guideResponse && (
-                        <div className="animate-[fadeIn_0.5s_ease-out] border-t dark:border-[#262626] border-neutral-200 pt-6 md:pt-8 transition-colors">
-                            <h3 className="text-xs font-bold text-orange-600 uppercase tracking-[0.2em] mb-4 md:mb-6 font-tech">Résultat de l'Analyse</h3>
-                            <div className="dark:bg-[#111] bg-neutral-100 p-6 md:p-8 rounded-2xl border-l-4 border-orange-600 dark:text-neutral-300 text-neutral-800 leading-relaxed md:leading-8 whitespace-pre-line font-mono text-xs md:text-sm shadow-inner transition-colors">
-                                {guideResponse}
+                        <div className="border-t dark:border-[#262626] border-neutral-200 pt-6 md:pt-8 transition-colors">
+                            <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-[0.2em] mb-6 font-tech text-center">Résultat de l'Analyse</h3>
+                            <div className="dark:bg-[#111] bg-neutral-50 p-6 md:p-8 rounded-2xl border dark:border-[#222] border-neutral-200 shadow-inner transition-colors font-sans">
+                                {renderFormattedResponse(guideResponse)}
                             </div>
                         </div>
                     )}
@@ -251,6 +317,14 @@ const App: React.FC = () => {
         isVisible={showToast} 
         onClose={() => setShowToast(false)} 
       />
+      
+      {/* Inject animation styles locally for the staggered effect */}
+      <style>{`
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };
