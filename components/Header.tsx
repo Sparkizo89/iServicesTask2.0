@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaBolt, FaMoon, FaSun } from 'react-icons/fa6';
+import ScrambleText from './ScrambleText';
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -7,6 +8,27 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleTheme }) => {
+  const [scrambleTitle, setScrambleTitle] = useState(false);
+
+  useEffect(() => {
+    // Randomly trigger the scramble effect
+    const scheduleScramble = () => {
+        const randomDelay = Math.random() * 5000 + 3000; // Between 3s and 8s
+        return setTimeout(() => {
+            setScrambleTitle(true);
+            // Duration of the scramble
+            setTimeout(() => {
+                setScrambleTitle(false);
+                timerRef.current = scheduleScramble();
+            }, 1000); 
+        }, randomDelay);
+    };
+
+    let timerRef = { current: scheduleScramble() };
+
+    return () => clearTimeout(timerRef.current);
+  }, []);
+
   return (
     <header className="h-20 md:h-24 flex-none z-30 px-4 md:px-6 flex items-end pb-3 md:pb-4 border-b dark:border-[#262626] border-neutral-300 dark:bg-black/80 bg-white/80 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
@@ -21,7 +43,10 @@ const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleTheme }) => {
           
           <div className="flex flex-col justify-center h-full">
             <h1 className="text-xl md:text-3xl font-tech dark:text-white text-black tracking-tighter uppercase leading-none transition-colors">
-              iServices<span className="text-neutral-500">.task</span>
+              <ScrambleText text="iServices" trigger={scrambleTitle} />
+              <span className="text-neutral-500">
+                  <ScrambleText text=".task" trigger={scrambleTitle} />
+              </span>
             </h1>
             <div className="flex items-center gap-2 mt-0.5 md:mt-1">
                 <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse"></span>

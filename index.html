@@ -69,6 +69,43 @@
             50% { opacity: 0.2; }
             100% { transform: translateY(100%); opacity: 0.1; }
         }
+
+        @keyframes glitch-cyberpunk {
+            0% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0) skew(0);
+                filter: none;
+            }
+            20% {
+                clip-path: inset(20% 0 60% 0);
+                transform: translate(-10px, 5px) skew(20deg);
+                filter: drop-shadow(5px 0 0 #ea580c) saturate(300%) contrast(1.5);
+            }
+            40% {
+                clip-path: inset(60% 0 10% 0);
+                transform: translate(10px, -5px) skew(-10deg);
+                filter: drop-shadow(-5px 0 0 #ffffff) invert(1) brightness(2);
+            }
+            60% {
+                clip-path: inset(40% 0 40% 0);
+                transform: translate(-10px, 0) scale(1.1);
+                filter: brightness(1.5) drop-shadow(4px 4px 0 #ea580c);
+            }
+            80% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(5px, 5px) skew(10deg);
+                filter: drop-shadow(-2px -2px 0 #000) grayscale(1);
+            }
+            100% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0) skew(0);
+                filter: none;
+            }
+        }
+        
+        .glitch-active {
+            animation: glitch-cyberpunk 0.2s steps(4) both;
+        }
         
         .scanline-overlay {
             position: fixed;
@@ -100,10 +137,12 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-dots min-h-screen overflow-hidden selection:bg-orange-600 selection:text-white">
     <div class="scanline-overlay hidden dark:block"></div>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>

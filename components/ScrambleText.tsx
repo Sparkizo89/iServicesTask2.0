@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&[]{}+-=*^<>_';
 
 interface ScrambleTextProps {
   text: string;
@@ -15,11 +15,16 @@ const ScrambleText: React.FC<ScrambleTextProps> = ({ text, className, trigger })
   useEffect(() => {
     if (!trigger) {
         setDisplayText(text);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         return;
     }
 
     let iteration = 0;
     if (intervalRef.current) clearInterval(intervalRef.current);
+
+    // Calculate step speed based on text length to ensure animation finishes in reasonable time (~1.5s max)
+    // 30ms interval. Target 50 frames.
+    const step = Math.max(1/2, text.length / 40);
 
     intervalRef.current = window.setInterval(() => {
       setDisplayText(prev => 
@@ -36,9 +41,10 @@ const ScrambleText: React.FC<ScrambleTextProps> = ({ text, className, trigger })
 
       if (iteration >= text.length) {
         if (intervalRef.current) clearInterval(intervalRef.current);
+        setDisplayText(text); // Ensure final state is clean
       }
 
-      iteration += 1 / 3; 
+      iteration += step; 
     }, 30);
 
     return () => {

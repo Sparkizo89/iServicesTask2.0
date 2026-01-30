@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as Fa6Icons from 'react-icons/fa6';
 import { Procedure } from '../types';
+import ScrambleText from './ScrambleText';
 
 interface ProcedureCardProps {
   procedure: Procedure;
@@ -8,6 +9,9 @@ interface ProcedureCardProps {
 }
 
 const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onClick }) => {
+  const [isGlitching, setIsGlitching] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
   // Dynamically get icon component
   // @ts-ignore
   const IconComponent = Fa6Icons[procedure.icon.replace('fa-', '')] 
@@ -24,11 +28,29 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onClick }) => 
         case 'fa-circle-minus': Icon = Fa6Icons.FaCircleMinus; break;
     }
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsGlitching(true);
+    
+    // Duration matches the CSS animation (0.2s)
+    setTimeout(() => {
+        setIsGlitching(false);
+        onClick(procedure);
+    }, 200);
+  };
+
   return (
     <div 
-      onClick={() => onClick(procedure)} 
-      className="relative dark:bg-[#0f0f0f] bg-white rounded-[32px] p-7 cursor-pointer transition-all duration-300 group overflow-hidden border dark:border-[#262626] border-neutral-200 hover:border-orange-600/50 hover:dark:bg-[#141414] hover:bg-neutral-50 active:scale-[0.98] glow-hover shadow-lg dark:shadow-none"
+      onClick={handleCardClick} 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative dark:bg-[#0f0f0f] bg-white rounded-[32px] p-7 cursor-pointer transition-all duration-300 group overflow-hidden border dark:border-[#262626] border-neutral-200 hover:border-orange-600/50 hover:dark:bg-[#141414] hover:bg-neutral-50 active:scale-[0.98] glow-hover shadow-lg dark:shadow-none ${isGlitching ? 'glitch-active' : ''}`}
     >
+      {/* Glitch Overlay Effect */}
+      {isGlitching && (
+         <div className="absolute inset-0 bg-orange-600 mix-blend-color-dodge opacity-20 pointer-events-none z-50"></div>
+      )}
+
       {/* Nothing Glitch Texture on Hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] transition-opacity duration-500 pointer-events-none"></div>
 
@@ -42,7 +64,7 @@ const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure, onClick }) => 
                 0{Math.floor(Math.random() * 9)}
             </span>
              <span className="text-[10px] font-tech text-orange-600 border border-orange-600/30 px-2 py-0.5 rounded uppercase tracking-wider bg-orange-600/5 mt-1">
-              {procedure.code}
+              <ScrambleText text={procedure.code} trigger={isHovered} />
             </span>
         </div>
       </div>

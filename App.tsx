@@ -5,6 +5,7 @@ import ProcedureCard from './components/ProcedureCard';
 import ContactCard from './components/ContactCard';
 import Modal from './components/Modal';
 import Toast from './components/Toast';
+import ScrambleText from './components/ScrambleText';
 import { procedures } from './data/procedures';
 import { contacts } from './data/contacts';
 import { pdfContext } from './data/pdfContext';
@@ -109,11 +110,11 @@ const App: React.FC = () => {
   const renderFormattedResponse = (text: string) => {
     if (!text) return null;
 
-    const lines = text.split('\n');
+    const lines = text.split(/\r?\n/);
     let delayCounter = 0;
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-3 font-tech text-sm md:text-base">
             {lines.map((line, index) => {
                 if (!line.trim()) return <div key={index} className="h-2"></div>;
 
@@ -123,41 +124,42 @@ const App: React.FC = () => {
 
                 // Headers (###)
                 if (line.startsWith('###')) {
+                    const content = line.replace(/^###\s*/, '');
                     return (
-                        <h3 key={index} className="text-orange-600 font-tech font-bold text-lg uppercase tracking-wide mt-4 mb-2 flex items-center gap-2 animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
+                        <h3 key={index} className="text-orange-600 font-bold text-lg uppercase tracking-wide mt-4 mb-2 flex items-center gap-2 animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
                             <FaSquare className="text-[8px]" />
-                            {line.replace(/^###\s*/, '')}
+                            {content}
                         </h3>
                     );
                 }
 
                 // List Items (- )
                 if (line.trim().startsWith('-')) {
-                     // Process bold text inside list items
-                     const content = line.replace(/^\s*-\s*/, '').split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                     const textContent = line.replace(/^\s*-\s*/, '');
+                     const parts = textContent.split(/(\*\*.*?\*\*)/g).map((part, i) => 
                         part.startsWith('**') && part.endsWith('**') 
                             ? <strong key={i} className="text-orange-600 dark:text-orange-500 font-bold">{part.slice(2, -2)}</strong> 
-                            : part
+                            : <span key={i}>{part}</span>
                     );
 
                     return (
                         <div key={index} className="flex gap-3 items-start pl-2 animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
-                            <span className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-600 rounded-full mt-2 shrink-0"></span>
-                            <p className="dark:text-neutral-300 text-neutral-700 leading-relaxed text-sm md:text-base">{content}</p>
+                            <span className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-600 rounded-full mt-1.5 shrink-0"></span>
+                            <p className="dark:text-neutral-300 text-neutral-700 leading-relaxed">{parts}</p>
                         </div>
                     );
                 }
 
                 // Standard Paragraphs
-                const content = line.split(/(\*\*.*?\*\*)/g).map((part, i) => 
+                const parts = line.split(/(\*\*.*?\*\*)/g).map((part, i) => 
                     part.startsWith('**') && part.endsWith('**') 
                         ? <strong key={i} className="text-black dark:text-white font-bold">{part.slice(2, -2)}</strong> 
-                        : part
+                        : <span key={i}>{part}</span>
                 );
 
                 return (
-                    <p key={index} className="dark:text-neutral-400 text-neutral-600 leading-relaxed text-sm md:text-base animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
-                        {content}
+                    <p key={index} className="dark:text-neutral-400 text-neutral-600 leading-relaxed animate-[slideUp_0.4s_ease-out_forwards] opacity-0 translate-y-2" style={style}>
+                        {parts}
                     </p>
                 );
             })}
