@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeCategory, onSelectCategory }) =
       <div className="hidden lg:block p-8 border-t dark:border-[#262626] border-neutral-300 transition-colors">
         <div className="flex flex-col gap-1 items-center lg:items-start opacity-40 hover:opacity-100 transition-opacity">
             <span className="text-[10px] font-tech text-neutral-500 uppercase tracking-widest">iServices Corp</span>
-            <div className="text-[8px] font-mono text-neutral-500">Encodé par IA</div>
+            <div className="text-[8px] font-mono text-neutral-500">Powered by Mathieu Geneste</div>
         </div>
       </div>
     </aside>
