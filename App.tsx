@@ -19,8 +19,8 @@ const App: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   
-  // Theme State (Default to Dark)
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // Theme State (Default to Light)
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Apply theme to HTML tag
   useEffect(() => {
